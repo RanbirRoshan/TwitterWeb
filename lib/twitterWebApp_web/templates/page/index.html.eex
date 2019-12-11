@@ -1,0 +1,30 @@
+<div id="id01" class="modal" >
+
+  <form class="modal-content animate" action="/login" method="get">
+    <div class="imgcontainer"style="text-align:center;">
+      <img src="/images/img_avatar.png" style="width:150px;height:150px;" alt="Avatar" class="avatar">
+    </div>
+
+    <div class="container">
+      <label for="username"><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" required>
+
+      <label for="password"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="pwd" required>
+
+      <div style="text-align:center;">
+        <%= if Map.get(assigns, :hasError) do %>
+        <div class="container">
+          <span class="psw"><%= Map.get(assigns, :reason)%></span>
+        </div>
+        <% end %>
+        <button type="submit">Login</button>
+
+        <div class="container">
+          <span class="psw">Don't have an account. <a href="SignUp">Sign Up.</a></span>
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
