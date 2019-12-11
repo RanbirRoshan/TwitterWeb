@@ -26,11 +26,14 @@ h6{font-size: 1.4rem; letter-spacing: 0; line-height: 1.2}
 select {
   width: auto;
 }
+body{
+}
 body::after {
   content: "";
   background: url(/images/bgimage.jpg);
   background-size: cover;
   opacity: 0.4;
+  width:100%;
   top: 0;
   left: 0;
   bottom: 0;

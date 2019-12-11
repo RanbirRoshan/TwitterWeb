@@ -15,4 +15,8 @@ defmodule TwitterUtil do
   def validateUser(username, password) do
     sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:Login, username, password}, false)
   end
+
+  def registerUser(username, password) do
+    sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:RegisterUser, username, password}, false)
+  end
 end

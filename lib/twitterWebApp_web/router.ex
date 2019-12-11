@@ -20,6 +20,9 @@ defmodule TwitterWebAppWeb.Router do
     get "/SignUp", PageController, :signUp
     get "/login", PageController, :login
     get "/Register", PageController, :register
+    get "/PostTweet", PageController, :postTweet
+    get "/Logout", PageController, :logout
+    get "/home", PageController, :home
   end
 
   # Other scopes may use custom stacks.

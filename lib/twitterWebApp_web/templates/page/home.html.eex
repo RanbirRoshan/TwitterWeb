@@ -1,0 +1,9 @@
+<div>
+Heading here <form action="/Logout" method="get"><input type="submit"  value="Logout"></form>
+</div>
+<div>
+<form class="modal-content" action="/PostTweet"  method="get ">
+  <input style="width:80%; " rows="5"  type="text" placeholder="Enter your tweet here." id="exampleForm2" class="form-control">
+  <button>Post</button>
+</form>
+</div>
