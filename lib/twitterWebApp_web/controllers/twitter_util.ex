@@ -19,4 +19,20 @@ defmodule TwitterUtil do
   def registerUser(username, password) do
     sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:RegisterUser, username, password}, false)
   end
+
+  def tweet(username, password, tweet) do
+    sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:PostTweet, username, password, tweet}, false)
+  end
+
+  def getTweets(username, password) do
+    sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:GetSubscribedTweet, username, password}, false)
+  end
+
+  def subscribeUser(username, password, followUser) do
+    sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:SubscribeUser, username, password, followUser}, false)
+  end
+
+  def getAllUsers(username, password) do
+    sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:GetUserList, username, password}, false)
+  end
 end

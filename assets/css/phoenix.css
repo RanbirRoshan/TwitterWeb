@@ -41,6 +41,13 @@ body::after {
   position: absolute;
   z-index: -1;
 }
+#tweetBorder {
+  border: 6px double rgba(0,0,0,0.65);
+  border-radius: 40px 0px 40px 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+}
 /* Alerts and form errors */
 .alert {
   padding: 15px;

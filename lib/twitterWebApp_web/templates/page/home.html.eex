@@ -1,9 +1,47 @@
-<div>
-Heading here <form action="/Logout" method="get"><input type="submit"  value="Logout"></form>
+<div >
+Welcome
+<form style="display: inline; margin: 0;" action="/FindUsers" method="get"><input type="submit"  value="Users"></form>
+<form  style="display: inline; margin: 0;" action="/Logout" method="get"><input type="submit"  value="Logout"></form>
 </div>
 <div>
-<form class="modal-content" action="/PostTweet"  method="get ">
-  <input style="width:80%; " rows="5"  type="text" placeholder="Enter your tweet here." id="exampleForm2" class="form-control">
-  <button>Post</button>
+<form class="modal-content" action="/PostTweet"  method="get " style="text-align:center;">
+  <%= if Map.get(assigns, :hasError) do %>
+    <div class="container" style="text-align:center; color:red">
+      <span class="psw"><%= Map.get(assigns, :reason)%></span>
+    </div>
+  <% end %>
+  <input style="width:80%; " rows="5"  type="text" placeholder="Enter your tweet here." name="tweet" class="form-control" required>
+  <button type="submit">Post</button>
 </form>
+<div id="TweetView" >
+
+</div>
+<script>
+$(document).ready(function() {
+  let timerId = setInterval(() => console.log("HI"), 2000);
+  $.ajax({
+        url: "/GetPosts",
+        success: function(result){
+          $("#TweetView").html("");
+          $.each( result, function(key, data) {
+            //console.log(data.from, data.time, data.tweetText)
+            var curTime =$.now()
+            var diff = new Date(curTime - new Date(data.time))
+            diffstr = ""
+            if ((diff/1000/60/60/24).toFixed()>0){
+              diffstr = String((diff/1000/60/60/24).toFixed()) + " days ago";
+            } else if ((diff/1000/60/60).toFixed()>0){
+              diffstr = String((diff/1000/60/60).toFixed()) + " hours ago";
+            } else if ((diff/1000/60).toFixed()>0){
+              diffstr = String((diff/1000/60).toFixed()) + " mins ago";
+            }
+            var diff = new Date(curTime - new Date(data.time)),
+            text = "<div id=\"tweetBorder\" style=\"background-color: rgba(232, 248, 245, 0.8);\"><form style=\"display: inline; margin: 0;\"><b>"+data.from+"</b><br><div style=\"padding:5px;display: inline; margin: 5px;\"><i>"+data.tweetText+"<i></div><br>"+diffstr+"<div style=\"text-align:center\"><button>Retweet</button></div></form></div>";
+            console.log(diffstr)
+            $("#TweetView").append(text);
+          });
+        }
+        });
+});
+</script>
 </div>

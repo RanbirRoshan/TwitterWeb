@@ -13,6 +13,7 @@ defmodule TwitterWebAppWeb.PageController do
 
   def index(conn, _params) do
     if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && Plug.Conn.get_session(conn, "isLoggedIn") do
+
       redirect(conn, to: "/home")
     else
       render(conn, "index.html")
@@ -49,7 +50,81 @@ defmodule TwitterWebAppWeb.PageController do
 
 
   def postTweet(conn, params) do
+    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && Plug.Conn.get_session(conn, "isLoggedIn") do
+      username = Plug.Conn.get_session(conn, "username")
+      password = Plug.Conn.get_session(conn, "password")
+      {:ok, tweet} = Map.fetch(params, "tweet")
+      {ret, reason} = TwitterUtil.tweet(username, password, tweet)
+      if ret==:ok do
+        redirect(conn, to: "/home")
+      else
+        attr_list = %{:hasError =>true, :reason=> reason}
+        render(conn, "home.html", attr_list)
+      end
+    else
+      redirect(conn, to: "/")
+    end
+  end
 
+  def subscribe(conn, params) do
+    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && Plug.Conn.get_session(conn, "isLoggedIn") do
+      username = Plug.Conn.get_session(conn, "username")
+      password = Plug.Conn.get_session(conn, "password")
+      {:ok, tweet} = Map.fetch(params, "Follow")
+      {ret, reason} = TwitterUtil.subscribeUser(username, password, tweet)
+      #IO.inspect({ret, reason})
+      #if ret==:ok do
+        redirect(conn, to: "/FindUsers")
+      #else
+      #  attr_list = %{:hasError =>true, :reason=> reason}
+      #  render(conn, "home.html", attr_list)
+      #end
+    else
+      redirect(conn, to: "/")
+    end
+  end
+
+  def getUserList(conn, params) do
+    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && true == Plug.Conn.get_session(conn, "isLoggedIn") do
+      username = Plug.Conn.get_session(conn, "username")
+      password = Plug.Conn.get_session(conn, "password")
+
+      {ret, data} = TwitterUtil.getAllUsers(username, password)
+      if ret == :ok do
+        json(conn, data)
+      else
+        json(conn, data)
+      end
+    else
+      json(conn, [])
+    end
+  end
+
+  def findUsers(conn, params) do
+    render(conn, "findUsers.html")
+  end
+
+  def getPosts(conn, params) do
+    page =
+    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && true == Plug.Conn.get_session(conn, "isLoggedIn") do
+      username = Plug.Conn.get_session(conn, "username")
+      password = Plug.Conn.get_session(conn, "password")
+
+      {ret, data} = TwitterUtil.getTweets(username, password)
+      IO.inspect(data)
+      if ret == :ok do
+        IO.inspect(data)
+        response =
+          for {from, time, text}<-data do
+            %{:from=>from, :time=>time, :tweetText=>text}
+          end
+        json(conn, response)
+      else
+        send_resp(conn, 200, data)
+      end
+    else
+      json(conn, [])
+    end
   end
 
 

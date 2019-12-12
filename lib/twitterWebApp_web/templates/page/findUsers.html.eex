@@ -1,0 +1,28 @@
+<div >
+  Welcome
+  <form style="display: inline; margin: 0;" action="/home" method="get"><input type="submit"  value="Home"></form>
+  <form  style="display: inline; margin: 0;" action="/Logout" method="get"><input type="submit"  value="Logout"></form>
+</div>
+
+<div id="UserList">
+</div>
+<script>
+$(document).ready(function() {
+  $.ajax({
+        url: "/GetUserList",
+        success: function(result){
+          $("#UserList").html("");
+          $.each( result, function(key, data) {
+
+            text = "<div id=\"UserFollowBorder\" style=\"background-color: rgba(232, 248, 245, 0.8);\"><form action=\"/Subscribe\" method=\"get\" style=\"display: inline; margin: 0;\"><b>"+"<input name=\"Follow\" type = \"text\" value = \""+ data.user +"\" class=\"field left\" readonly>"+"<b><div style=\"display: inline; margin: 0;text-align:center\">"
+            if (data.followed) {
+              text = text +"<button type=\"submit\">Unfollow</button></div></form></div>";
+            } else {
+              text = text +"<button type=\"submit\">Follow</button></div></form></div>";
+            }
+            $("#UserList").append(text);
+          });
+        }
+        });
+});
+</script>

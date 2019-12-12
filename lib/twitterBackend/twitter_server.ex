@@ -222,7 +222,22 @@ defmodule TwitterCoreServer do
                 []
               end
           end
-          ret_val = flatten(tweets) |> Enum.sort_by(&(elem(&1, 1)))
+          selfTweets =
+            for {tweet_server, tweet_id} <- user.tweets do
+              {:ok, tweet} = GenServer.call(Enum.at(state.userDataMap, tweet_server), {:GetTweet, tweet_id})
+              tweet
+            end
+          tweets = tweets ++ selfTweets
+          ret_val = flatten(tweets) |> Enum.sort(fn x,y->
+            {_,dt1,_}=x
+            {_,dt2,_}=y
+            if DateTime.compare(dt1, dt2) == :lt do
+              false
+            else
+              true
+            end
+          end) #&(elem(&1, 1)
+          #IO.inspect(ret_val)
           {:reply, {:ok, ret_val}, state}
         else
           {:reply, {:bad, "Invalid user id or password"}, state}
@@ -236,7 +251,34 @@ defmodule TwitterCoreServer do
   end
 
   @impl true
+  def handle_call({:GetUserList, username, password}, _from, state) do
+    {server_pid, _} = getDS(username, state)
+    {result, user} = GenServer.call(server_pid, {:GetUserById, username})
+    if result == :ok && (validateUser(username, password, user)) do
+      allUsers=
+        for server<-state.userDataMap do
+          {:ok, users} = GenServer.call(server, {:GetAllUsers})
+          #IO.inspect(users)
+          users
+        end
+      allUsers = List.flatten(allUsers)
+      ret =
+      for curUser<-allUsers do
+        if Enum.find(user.subscribedTo, fn x -> x == curUser end) == nil do
+          %{:user=>curUser, :followed=>false}
+        else
+          %{:user=>curUser, :followed=>true}
+        end
+      end
+      {:reply, {:ok, ret}, state}
+    else
+      {:reply, {:bad, "Invalid user id or password"}, state}
+    end
+  end
+
+  @impl true
   def handle_call({:SubscribeUser, name, password, subscribeUserName}, _from, state) do
+    IO.puts("(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((99 #{name} #{password} #{subscribeUserName}")
     subscribeUserName = convertToLower(stringTrim(subscribeUserName))
     if isStringNonEmpty(subscribeUserName) do
       {server_pid, _} = getDS(name, state)
@@ -248,12 +290,20 @@ defmodule TwitterCoreServer do
           if result == :ok do
             if (validateUser(name, password, user)) do
               if !(Enum.member?(user.subscribedTo, subscribeUserName)) do
+                IO.puts("Subscribe")
                 updateUserInfo = %UserInfo{userId: sub_user.userId, password: sub_user.password, tweets: sub_user.tweets, subscribedTo: sub_user.subscribedTo, userMention: sub_user.userMention, userPid: sub_user.userPid, userDeleted: sub_user.userDeleted, subscribedBy: sub_user.subscribedBy++[name]}
                 GenServer.call(sub_server_pid, {:UpdateUser, updateUserInfo})
                 updateUserInfo = %UserInfo{userId: user.userId, password: user.password, tweets: user.tweets, subscribedTo: user.subscribedTo++[subscribeUserName], userMention: user.userMention, userPid: user.userPid, userDeleted: user.userDeleted, subscribedBy: user.subscribedBy}
                 {:reply, GenServer.call(server_pid, {:UpdateUser, updateUserInfo}), state}
               else
-                {:reply, {:bad, "Already Subscribed to user"}, state}
+                IO.puts("Unsubscribe")
+                subscribedUser = List.delete(sub_user.subscribedBy, name)
+                updateUserInfo = %UserInfo{userId: sub_user.userId, password: sub_user.password, tweets: sub_user.tweets, subscribedTo: sub_user.subscribedTo, userMention: sub_user.userMention, userPid: sub_user.userPid, userDeleted: sub_user.userDeleted, subscribedBy: subscribedUser}
+                GenServer.call(sub_server_pid, {:UpdateUser, updateUserInfo})
+                subscribedUser = List.delete(user.subscribedTo, subscribeUserName)
+                updateUserInfo = %UserInfo{userId: user.userId, password: user.password, tweets: user.tweets, subscribedTo: subscribedUser, userMention: user.userMention, userPid: user.userPid, userDeleted: user.userDeleted, subscribedBy: user.subscribedBy}
+                {:reply, GenServer.call(server_pid, {:UpdateUser, updateUserInfo}), state}
+                {:reply, {:ok, "Unsubscribed Successfully"}, state}
               end
             else
               {:reply, {:bad, "Invalid user id or password"}, state}

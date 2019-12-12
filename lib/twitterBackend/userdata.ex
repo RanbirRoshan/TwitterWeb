@@ -32,6 +32,12 @@ defmodule UserDataServer do
   end
 
   @impl true
+  def handle_call({:GetAllUsers}, _from, state) do
+    users = getAllUser(state, :ets.first(state.userTable), :ets.last(state.userTable), [])
+    {:reply, {:ok, users}, state}
+  end
+
+  @impl true
   def handle_call({:DeleteUser, userId}, _from, state) do
     #IO.inspect(userId)
     data = :ets.lookup(state.userTable, userId)
@@ -88,6 +94,17 @@ defmodule UserDataServer do
     :ets.insert_new(state.tweetTable, {tweet_id,tweet})
     {:reply, {:ok, tweet_id}, state}
   end
+
+  def getAllUser(state, cur, last, list) do
+    if cur == :"$end_of_table" do
+      list
+    else
+      list = list++[cur]
+      cur = :ets.next(state.userTable, cur)
+      getAllUser(state, cur, last, list)
+    end
+  end
+
 
   @impl true
   def handle_call({:GetTweet, tweet_id}, _from, state) do

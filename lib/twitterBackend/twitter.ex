@@ -86,4 +86,9 @@ defmodule Twitter do
     redirectionData(state)
   end
 
+  @impl true
+  def handle_call({:GetUserList, username, password}, _from, state) do
+    redirectionData(state)
+  end
+
 end
