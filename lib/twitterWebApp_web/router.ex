@@ -27,6 +27,8 @@ defmodule TwitterWebAppWeb.Router do
     get "/FindUsers", PageController, :findUsers
     get "/GetUserList", PageController, :getUserList
     get "/Subscribe", PageController, :subscribe
+    get "/startSimulation", PageController, :startSimulation
+    get "/isSimulationActive", PageController, :isSimulationActive
   end
 
   # Other scopes may use custom stacks.

@@ -31,7 +31,8 @@ defmodule Client do
       line =
       if chance > 90 do
         tag_pos = :rand.uniform(Enum.count(tags)) - 1
-        line <> " " <> Enum.at(tags, tag_pos)
+        line = line <> " " <> Enum.at(tags, tag_pos)
+        line
       else
         line
       end
@@ -94,11 +95,11 @@ defmodule Client do
         chance = :rand.uniform(100)
         change =
         if chance > 20 do
-          ##Logger.info("send tweet #{chance}")
           words = 10 + :rand.uniform(20)
 
           tweet = getRandomTweet(words, "", state.hash_tag_list, state.userDataMap)
           sendInfoToServer(state.server_id, {:PostTweet, state.name, state.password, tweet}, false)
+          GenServer.cast(state.owner, {:newTweet, tweet})
           1
         else
           if (performRetweet(state)) do

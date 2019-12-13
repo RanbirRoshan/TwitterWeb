@@ -1,0 +1,51 @@
+<table style="padding:5px; height: auto; border:3px solid black; width:95%">
+  <tr>
+
+    <div id="SimulationInputAllowed" style="text-align:center; padding-top:50px">
+      <form class="modal-content animate" action="/startSimulation" method="get">
+        <label for="UserCount" style="font: normal normal 18px/normal Georgia, serif;"><b>Number of User</b></label>
+        <input class="customInputBox" style="display: inline; margin: 0; width:300px;" type="number" max="1000" min="1" value=10 onkeypress="return event.charCode >= 48 && event.charCode <= 57" placeholder="Number of user" name="UserCount" required>
+        <label for="TweetCount" style=" padding-left: 100px; font: normal normal 18px/normal Georgia, serif;"><b>Number of Tweets</b></label>
+        <input class="customInputBox"  style="display: inline; margin: 0; width:300px;" type="number" max="1000" min="1" value=80 onkeypress="return event.charCode >= 48 && event.charCode <= 57" placeholder="Number of Tweets" name="TweetCount" required>
+        <br><br>
+        <button class="greenButton" type="submit">Start</button>
+      </form>
+    </div>
+
+    <div id="simulationInProgress" style="text-align:center; padding-top:50px">
+        <label style="font: normal normal 25px/normal Georgia, serif;">Simulation In Progress....</label>
+    </div>
+  </tr>
+  <tr>
+    <td>
+      <div id="UserCount" style="height:40%">
+
+      </div>
+    </td>
+    <td>
+      <div id="TagCount" style="height:40%">
+
+      </div>
+    </td>
+  </tr>
+</table>
+<script>
+  function CheckSimulationActive()
+  {
+    $.ajax({
+      url: "/isSimulationActive",
+      success: function(result){
+          if (result == "false"){
+            $( "#SimulationInputAllowed" ).show()
+            $( "#simulationInProgress" ).hide()
+          } else {
+            $( "#simulationInProgress" ).show()
+            $( "#SimulationInputAllowed" ).hide()
+          }
+      }
+     });
+  }
+    $(document).ready(function() {
+      let timerId = setInterval(() => CheckSimulationActive(), 2000);
+    });
+</script>

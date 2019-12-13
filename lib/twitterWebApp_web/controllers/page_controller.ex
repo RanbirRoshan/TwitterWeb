@@ -11,13 +11,51 @@ defmodule TwitterWebAppWeb.PageController do
     render(conn, "index.html")
   end
 
-  def index(conn, _params) do
-    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && Plug.Conn.get_session(conn, "isLoggedIn") do
+  def startSimulation(conn, params) do
+    {:ok, userCount} = Map.fetch(params, "UserCount")
+    {:ok, tweetCount} = Map.fetch(params, "TweetCount")
 
-      redirect(conn, to: "/home")
+    {tweetCount, _} = Integer.parse(tweetCount)
+    {userCount, _}  = Integer.parse(userCount)
+    simulator_pid = Application.get_env(TwitterWebApp, :simulatorPid)
+    if simulator_pid == nil do
+      {:ok, server_id} = GenServer.start(Simulator, {userCount, tweetCount})
+      GenServer.cast(server_id, {:start})
+      Application.put_env(TwitterWebApp, :simulatorPid, server_id)
+      redirect(conn, to: "/")
     else
-      render(conn, "index.html")
+      if (GenServer.call(simulator_pid, {:isDone}, 999999999) == false)do
+        redirect(conn, to: "/")
+      else
+        Application.put_env(TwitterWebApp, :simulatorPid, nil)
+        redirect(conn, to: "/")
+      end
     end
+  end
+
+  def isSimulationActive(conn, _params) do
+    simulator_pid = Application.get_env(TwitterWebApp, :simulatorPid)
+
+    if simulator_pid == nil do
+      text(conn, "false")
+    else
+      if (GenServer.call(simulator_pid, {:isDone}, 999999999) == false)do
+        text(conn, "true")
+      else
+        Application.put_env(TwitterWebApp, :simulatorPid, nil)
+        text(conn, "false")
+      end
+    end
+  end
+
+  def index(conn, _params) do
+    render(conn, "simulation.html")
+#    if !is_nil(Plug.Conn.get_session(conn, "isLoggedIn")) && Plug.Conn.get_session(conn, "isLoggedIn") do
+#
+#      redirect(conn, to: "/home")
+#    else
+#      render(conn, "index.html")
+#    end
   end
 
 
@@ -72,7 +110,7 @@ defmodule TwitterWebAppWeb.PageController do
       password = Plug.Conn.get_session(conn, "password")
       {:ok, tweet} = Map.fetch(params, "Follow")
       {ret, reason} = TwitterUtil.subscribeUser(username, password, tweet)
-      #IO.inspect({ret, reason})
+      #yinspect({ret, reason})
       #if ret==:ok do
         redirect(conn, to: "/FindUsers")
       #else
@@ -111,9 +149,7 @@ defmodule TwitterWebAppWeb.PageController do
       password = Plug.Conn.get_session(conn, "password")
 
       {ret, data} = TwitterUtil.getTweets(username, password)
-      IO.inspect(data)
       if ret == :ok do
-        IO.inspect(data)
         response =
           for {from, time, text}<-data do
             %{:from=>from, :time=>time, :tweetText=>text}

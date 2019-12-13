@@ -278,7 +278,6 @@ defmodule TwitterCoreServer do
 
   @impl true
   def handle_call({:SubscribeUser, name, password, subscribeUserName}, _from, state) do
-    IO.puts("(((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((99 #{name} #{password} #{subscribeUserName}")
     subscribeUserName = convertToLower(stringTrim(subscribeUserName))
     if isStringNonEmpty(subscribeUserName) do
       {server_pid, _} = getDS(name, state)
@@ -290,13 +289,11 @@ defmodule TwitterCoreServer do
           if result == :ok do
             if (validateUser(name, password, user)) do
               if !(Enum.member?(user.subscribedTo, subscribeUserName)) do
-                IO.puts("Subscribe")
                 updateUserInfo = %UserInfo{userId: sub_user.userId, password: sub_user.password, tweets: sub_user.tweets, subscribedTo: sub_user.subscribedTo, userMention: sub_user.userMention, userPid: sub_user.userPid, userDeleted: sub_user.userDeleted, subscribedBy: sub_user.subscribedBy++[name]}
                 GenServer.call(sub_server_pid, {:UpdateUser, updateUserInfo})
                 updateUserInfo = %UserInfo{userId: user.userId, password: user.password, tweets: user.tweets, subscribedTo: user.subscribedTo++[subscribeUserName], userMention: user.userMention, userPid: user.userPid, userDeleted: user.userDeleted, subscribedBy: user.subscribedBy}
                 {:reply, GenServer.call(server_pid, {:UpdateUser, updateUserInfo}), state}
               else
-                IO.puts("Unsubscribe")
                 subscribedUser = List.delete(sub_user.subscribedBy, name)
                 updateUserInfo = %UserInfo{userId: sub_user.userId, password: sub_user.password, tweets: sub_user.tweets, subscribedTo: sub_user.subscribedTo, userMention: sub_user.userMention, userPid: sub_user.userPid, userDeleted: sub_user.userDeleted, subscribedBy: subscribedUser}
                 GenServer.call(sub_server_pid, {:UpdateUser, updateUserInfo})
