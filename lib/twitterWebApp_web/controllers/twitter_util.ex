@@ -35,4 +35,35 @@ defmodule TwitterUtil do
   def getAllUsers(username, password) do
     sendInfoToServer(Application.get_env(TwitterWebApp, :serverPid), {:GetUserList, username, password}, false)
   end
+
+  def getTweetbyTag(tag) do
+    if (Application.get_env(TwitterWebApp, :simulatorPid)!=nil) do
+      ret = GenServer.call(Application.get_env(TwitterWebApp, :simulatorPid), {:getServerPid})
+      sendInfoToServer(ret, {:GetTweetsByHashTag, tag}, false)
+    else
+      {:ok ,["No Active Simulation."]}
+    end
+  end
+
+  def getUserFeed(name) do
+    if (Application.get_env(TwitterWebApp, :simulatorPid)!=nil) do
+      ret = GenServer.call(Application.get_env(TwitterWebApp, :simulatorPid), {:getServerPid})
+      pwd = GenServer.call(Application.get_env(TwitterWebApp, :simulatorPid), {:getUserPwd, name})
+      IO.inspect(pwd)
+      sendInfoToServer(ret, {:GetSubscribedTweet, name, pwd}, false)
+    else
+      {:ok ,["No Active Simulation."]}
+    end
+  end
+
+  def getUserMentions(name) do
+    if (Application.get_env(TwitterWebApp, :simulatorPid)!=nil) do
+      ret = GenServer.call(Application.get_env(TwitterWebApp, :simulatorPid), {:getServerPid})
+      pwd = GenServer.call(Application.get_env(TwitterWebApp, :simulatorPid), {:getUserPwd, name})
+      IO.inspect(pwd)
+      sendInfoToServer(ret, {:GetMyMention, name, pwd}, false)
+    else
+      {:ok ,["No Active Simulation."]}
+    end
+  end
 end

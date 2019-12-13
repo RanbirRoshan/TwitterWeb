@@ -1,6 +1,6 @@
 <table style="padding:5px; height: auto; border:3px solid black; width:95%">
   <tr>
-
+  <td colspan="3">
     <div id="SimulationInputAllowed" style="text-align:center; padding-top:50px">
       <form class="modal-content animate" action="/startSimulation" method="get">
         <label for="UserCount" style="font: normal normal 18px/normal Georgia, serif;"><b>Number of User</b></label>
@@ -15,19 +15,84 @@
     <div id="simulationInProgress" style="text-align:center; padding-top:50px">
         <label style="font: normal normal 25px/normal Georgia, serif;">Simulation In Progress....</label>
     </div>
+  </td>
   </tr>
+
   <tr>
     <td>
-      <div id="UserCount" style="height:40%">
+      <table>
+        <tr>
+          <td>
+          <lable>Tweets:</lable>
+            <div id="TweetCount" style="height:40%">
+              0
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+          <lable>Retweets:</lable>
+            <div id="ReTweetCount" style="height:40%">
+              0
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+    <td>
+          <lable>Most frequent used tags:</lable>
+      <div id="UserCount" style="max-height: 150px;min-height: 150px;overflow-y: scroll;">
 
       </div>
     </td>
     <td>
-      <div id="TagCount" style="height:40%">
+
+          <lable>Most mentioned user:</lable>
+      <div id="TagCount" style="max-height: 150px;min-height: 150px;overflow-y: scroll;">
 
       </div>
     </td>
   </tr>
+  <tr><td colspan="3"><hr></td></tr>
+  <tr>
+    <td colspan="1">
+      <lable>Tweets by tag:</lable>
+      <select id="TagSelect">   </select>
+      <br>
+      <label id="tagLable"></label>
+      <div id="TagFeed" style="max-height: 150px;;min-height: 150px;max-width:550px;overflow-y: scroll;">
+
+      </div>
+    </td>
+    <td colspan="1">
+      <lable>User Feed:</lable>
+      <select id="UserSelect">   </select>
+      <br>
+      <label id="userFeedLable"></label>
+        <div id="UserFeed" style="max-height: 150px;;min-height: 150px;max-width:550px;overflow-y: scroll;">
+
+        </div>
+      </td>
+    <td colspan="1">
+      <lable>User mentions:</lable>
+      <select id="UserSelect2">   </select>
+      <br>
+      <label id="userFeedLable2"></label>
+      <div id="UserFeed2" style="max-height: 150px;;min-height: 150px;max-width:550px;overflow-y: scroll;">
+
+      </div>
+    </td>
+   </tr>
+  <tr><td colspan="3"><hr></td></tr>
+  <tr>
+  <td colspan="3">
+          <lable>Most recently posted 100 tweets:</lable>
+    <div id="RecentTweets" style="max-height: 250px;min-height: 250px;overflow-y: scroll;">
+
+    </div>
+  </td>
+  </tr>
+
 </table>
 <script>
   function CheckSimulationActive()

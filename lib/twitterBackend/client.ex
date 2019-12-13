@@ -60,6 +60,7 @@ defmodule Client do
     else
       data = {:ReTweet, state.name, state.password, Enum.at(data,:rand.uniform(Enum.count(data))-1)}
       {:ok, data} = sendInfoToServer(state.server_id, data, false)
+      GenServer.cast(state.owner, {:newReTweet, ""})
       #Logger.info("Retweet action successful")
       true
     end

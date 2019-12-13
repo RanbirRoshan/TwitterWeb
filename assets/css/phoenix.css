@@ -29,7 +29,7 @@ body{
 }
 body::after {
   content: "";
-  background: url(/images/bgimage.jpg);
+  background: url(/images/bgimage1.jpg);
   background-size: cover;
   opacity: 0.4;
   width:100%;

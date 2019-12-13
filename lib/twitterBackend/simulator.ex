@@ -14,7 +14,7 @@ defmodule Simulator do
   @impl true
   def init(init_arg) do
     {num_user, num_tweet} = init_arg
-    state = %{:num_start_end_pending => num_user, :numUser=>num_user, :numMsg=>num_tweet}
+    state = %{:num_start_end_pending => num_user, :numUser=>num_user, :numMsg=>num_tweet, :userList=>[], :recount=>0, :count=>0, :latestTweet=>[], :tweetServer=>nil}
     {:ok, state}
   end
 
@@ -148,9 +148,43 @@ defmodule Simulator do
   end
 
   @impl true
+  def handle_cast({:newReTweet, tweet}, state) do
+    # IO.inspect(tweet)
+    state = %{state | :recount=>state.recount+1}
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_cast({:newTweet, tweet}, state) do
    # IO.inspect(tweet)
-    {:noreply, state}
+   state = %{state | :count=>state.count+1}
+   newlist =
+   if (Enum.count(state.latestTweet) == 10) do
+     list = List.delete_at(state.latestTweet, length(state.latestTweet)-1)
+     List.insert_at(list, 0, tweet)
+   else
+     List.insert_at(state.latestTweet, 0, tweet)
+   end
+   state = %{state | :latestTweet=>newlist}
+   if rem(state.count, 50)==0 do
+    TwitterWebAppWeb.Endpoint.broadcast!("twitter:tagCount", "tweetCout", %{"count"=>state.count, "retweetcount"=>state.recount,"list"=>newlist})
+   end
+   {:noreply, state}
+  end
+
+  @impl true
+  def handle_call({:getServerPid}, _, state) do
+    {:reply, state.tweetServer, state}
+  end
+
+  @impl true
+  def handle_call({:getUserPwd, name}, _, state) do
+    find = Enum.find(state.userList, fn(element) ->
+      {a,b}=element
+      a==name
+    end)
+    {name, pwd} = find
+    {:reply, pwd, state}
   end
 
   @impl true
@@ -169,6 +203,8 @@ defmodule Simulator do
     spawn fn ->
       updateUserMentionCount(userid_pwd_list, server_id, self)
     end
+    state = %{state | :tweetServer=>server_id}
+    state = %{state | :userList=>userid_pwd_list}
     {:noreply, state}
   end
 end

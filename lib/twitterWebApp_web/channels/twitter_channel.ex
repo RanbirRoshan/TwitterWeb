@@ -19,8 +19,34 @@ defmodule TwitterWebAppWeb.TwitterChannel do
   # Channels can be used in a request/response fashion
   # by sending replies to requests from the client
   def handle_in("getTagInfo", payload, socket) do
-
-    {:reply, {:ok, payload}, socket}
+    tag = Map.get(payload, "tag")
+    {ret, data} = TwitterUtil.getTweetbyTag(tag)
+    retdata =
+      for {a,b,c}<-data do
+        ["Sender:   "<>a<>"   Tweet:  "<>c]
+      end
+    push(socket, "getTagInfoData", %{val: retdata})
+    {:noreply, socket}
+  end
+  def handle_in("getUserFeed", payload, socket) do
+    name = Map.get(payload, "username")
+    {ret, data} = TwitterUtil.getUserFeed(name)
+    retdata =
+      for {a,b,c}<-data do
+        ["Sender:   "<>a<>"   Tweet:  "<>c]
+      end
+    push(socket, "getUserFeedData", %{val: retdata})
+    {:noreply, socket}
+  end
+  def handle_in("getUserMentions", payload, socket) do
+    name = Map.get(payload, "username")
+    {ret, data} = TwitterUtil.getUserMentions(name)
+    retdata =
+      for {a,b,c}<-data do
+        ["Sender:   "<>a<>"   Tweet:  "<>c]
+      end
+    push(socket, "getUserMentionsData", %{val: retdata})
+    {:noreply, socket}
   end
 
   # It is also common to receive messages from the client and
